@@ -2,7 +2,6 @@
 
 A Java-based API for compressing and decompressing files and folders. Built using Spring Boot, this API applies compression algorithms such as Huffman Encoding, Run-Length Encoding (RLE), and more — with a clean, extensible architecture based on Factory and Strategy design patterns.
 
----
 
 ## Features
 
@@ -15,7 +14,7 @@ A Java-based API for compressing and decompressing files and folders. Built usin
 - Extendable with new compression algorithms
 - RESTful API built with Spring Boot
 
----
+
 
 ## Design Patterns Used
 
@@ -24,7 +23,7 @@ A Java-based API for compressing and decompressing files and folders. Built usin
 | **Factory** | Dynamically instantiates compression strategy classes based on user input |
 | **Strategy** | Allows plugging different compression algorithms (Huffman, RLE, etc.) interchangeably |
 
----
+
 
 ## Tech Stack
 
