@@ -1,5 +1,8 @@
 package com.fc.file_compressor_api.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum CompressionAlgorithmType {
     HUFFMAN("huffman"),
     ;
@@ -10,9 +13,6 @@ public enum CompressionAlgorithmType {
         this.algorithmType = type;
     }
 
-    public String getAlgorithmType() {
-        return algorithmType;
-    }
 
     public static CompressionAlgorithmType fromType(String algoType) {
         for (CompressionAlgorithmType type : values()) {
