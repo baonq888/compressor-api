@@ -1,7 +1,7 @@
-package com.fc.file_compressor_api.services.strategy.helpers.compressor;
+package com.fc.file_compressor_api.services.strategy.helpers.algorithms.compressor;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fc.file_compressor_api.services.strategy.helpers.datastructures.HuffmanNode;
+
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,32 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+
 public class HuffmanCompressorHelper {
 
-    @Getter
-    @Setter
-    public static class HuffmanNode implements Comparable<HuffmanNode>{
-        public int freq;
-        public byte data;
-        public HuffmanNode left;
-        public HuffmanNode right;
 
-        public HuffmanNode(int freq, byte data) {
-            this.freq = freq;
-            this.data = data;
-        }
-
-        public HuffmanNode(int freq, HuffmanNode left, HuffmanNode right) {
-            this.freq = freq;
-            this.left = left;
-            this.right = right;
-        }
-
-        @Override
-        public int compareTo(HuffmanNode o) {
-            return this.freq - o.freq;
-        }
-    }
     public static Map<Byte, Integer> countFrequency(InputStream inputStream) throws IOException {
         Map<Byte, Integer> result = new HashMap<>();
         int byteData;
@@ -75,6 +53,7 @@ public class HuffmanCompressorHelper {
     }
 
     public static void persistFrequencyMap(DataOutputStream dataOutputStream, Map<Byte, Integer> freqDict) throws IOException {
+        // Define the DataOutputStream as [ENTRY_COUNT][BYTE_1][FREQ_1][BYTE_2][FREQ_2]...
         dataOutputStream.writeInt(freqDict.size());
 
         for (Map.Entry<Byte, Integer> entry: freqDict.entrySet()) {
