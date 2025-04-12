@@ -68,12 +68,10 @@ public class HuffmanCompressionStrategy implements CompressionStrategy{
         PriorityQueue<HuffmanNode> priorityQueue = HuffmanCompressorHelper.heapifyFrequencyMap(frequencyMap);
 
         HuffmanNode root = null;
-        if (priorityQueue.size() == 1) {
-            root = priorityQueue.poll();
-        } else {
+        if (priorityQueue.size() != 1) {
             HuffmanCompressorHelper.buildHuffmanTree(priorityQueue);
-            root = priorityQueue.poll();
         }
+        root = priorityQueue.poll();
 
         // Handle the first case where the original file had only one unique character
         HuffmanDecompressorHelper.decompressFileWithOneCharacter(root, frequencyMap, fileOutputStream);
