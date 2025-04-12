@@ -20,14 +20,9 @@ public class HuffmanDecompressorHelper {
     }
 
     public static void decompressFileWithOneCharacter(HuffmanNode root, Map<Byte, Integer> frequencyMap, OutputStream fileOutputStream) throws IOException {
-        if (root == null) {
-            return;
-        }
-        if (root.left == null && root.right == null) {
-            int originalSize = frequencyMap.values().iterator().next();
-            for (int i = 0; i < originalSize; i++) {
-                fileOutputStream.write(root.data);
-            }
+        int originalSize = frequencyMap.values().iterator().next();
+        for (int i = 0; i < originalSize; i++) {
+            fileOutputStream.write(root.data);
         }
     }
 }

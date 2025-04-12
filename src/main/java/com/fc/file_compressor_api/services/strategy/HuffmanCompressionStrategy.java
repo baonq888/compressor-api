@@ -74,7 +74,13 @@ public class HuffmanCompressionStrategy implements CompressionStrategy{
         root = priorityQueue.poll();
 
         // Handle the first case where the original file had only one unique character
-        HuffmanDecompressorHelper.decompressFileWithOneCharacter(root, frequencyMap, fileOutputStream);
+        if (root == null) {
+            return;
+        }
+        if (root.left == null && root.right == null) {
+            HuffmanDecompressorHelper.decompressFileWithOneCharacter(root, frequencyMap, fileOutputStream);
+            return;
+        }
 
         // Read the compressed bit stream and traverse the Huffman Tree
         HuffmanNode current = root;
