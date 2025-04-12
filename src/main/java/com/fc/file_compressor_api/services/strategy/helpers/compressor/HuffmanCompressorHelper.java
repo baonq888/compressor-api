@@ -1,15 +1,16 @@
-package com.fc.file_compressor_api.services.strategy.helpers;
+package com.fc.file_compressor_api.services.strategy.helpers.compressor;
 
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class HuffmanHelper {
+public class HuffmanCompressorHelper {
 
     @Getter
     @Setter
@@ -72,4 +73,60 @@ public class HuffmanHelper {
         generateHuffmanCodes(node.right, code + "1", huffmanCodes);
         return huffmanCodes;
     }
+
+    public static void persistFrequencyMap(DataOutputStream dataOutputStream, Map<Byte, Integer> freqDict) throws IOException {
+        dataOutputStream.writeInt(freqDict.size());
+
+        for (Map.Entry<Byte, Integer> entry: freqDict.entrySet()) {
+            dataOutputStream.writeByte(entry.getKey());
+            dataOutputStream.writeInt(entry.getValue());
+        }
+    }
+
+    public static void convertHuffmanCodeToBits(InputStream fileInputStream, DataOutputStream dataOutputStream, Map<Byte, String> huffmanCodes) throws IOException {
+        int byteData;
+        int currentByte = 0;
+        int bitCount = 0;
+        while ((byteData = fileInputStream.read()) != -1) {
+            byte b = (byte) byteData;
+            String code = huffmanCodes.get(b);
+            for (char bitChar : code.toCharArray()) {
+                // Shift the current byte to make space for the new bit
+                currentByte <<= 1;
+                //  without the if block and the |= 1 operation,
+                //  we would not be able to represent the '1's from the Huffman code in compressed data.
+                //  The compressed output would only contain sequences of 0 bits,
+                if (bitChar == '1') {
+                    currentByte |= 1;
+                }
+                bitCount ++;
+
+                // 1 byte only has 8 bits
+                if (bitCount == 8) {
+                    dataOutputStream.write((byte) currentByte); // store the full 8-bit byte
+                    currentByte = 0;
+                    bitCount = 0;
+                }
+            }
+        }
+
+        // What if the total bit length is not a multiple of 8?
+        // Zero-padding on the right
+        int paddingBits = 0;
+        if (bitCount > 0) {
+            paddingBits = 8 - bitCount;
+            currentByte <<= paddingBits;
+            dataOutputStream.write((byte) currentByte);
+        }
+
+        // Store the number of padding bits
+        // We encode full-length files or store size info
+        // so the decoder knows when to stop reading bits
+        // otherwise it might read padding as real data.
+        dataOutputStream.writeByte((byte) paddingBits);
+
+        dataOutputStream.flush();
+    }
+
+
 }
