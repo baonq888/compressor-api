@@ -1,4 +1,7 @@
 package com.fc.file_compressor_api.services.factory;
 
-public class CompressionStrategyFactory {
+import com.fc.file_compressor_api.services.strategy.CompressionStrategy;
+
+public interface CompressionStrategyFactory {
+    CompressionStrategy getStrategy(String strategy);
 }
