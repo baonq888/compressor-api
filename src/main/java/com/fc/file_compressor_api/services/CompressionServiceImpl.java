@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -76,9 +77,12 @@ public class CompressionServiceImpl implements CompressionService {
         }
 
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        try {
-            InputStream inputStream = compressedFile.getInputStream();
-            strategy.decompress(inputStream, byteOut);
+        try (InputStream fileInputStream = compressedFile.getInputStream();
+             ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+            if (zipEntry != null) {
+                strategy.decompress(zipInputStream, byteOut);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -43,7 +43,7 @@ public class HuffmanDecompressorHelper {
             }
             // Iterate through bits from left to right
             for (int i = 7; i >= 8 - bitsToProcess; i--) {
-                int bit = (byteData >> 1) & 1;
+                int bit = (byteData >> i) & 1;
 
                 if (current != null) {
                     if (bit == 0) {

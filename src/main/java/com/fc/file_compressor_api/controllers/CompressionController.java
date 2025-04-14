@@ -2,10 +2,8 @@ package com.fc.file_compressor_api.controllers;
 
 import com.fc.file_compressor_api.services.CompressionService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -76,7 +74,7 @@ public class CompressionController {
             @ApiResponse(responseCode = "400", description = "Bad request (e.g., no file uploaded)"),
             @ApiResponse(responseCode = "500", description = "Error decompressing file")
     })
-    @PostMapping("/decompress")
+    @PostMapping(value = "/decompress", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Resource> decompressFile(
             @RequestParam("file") MultipartFile compressedFile) {
         if (compressedFile.isEmpty()) {
@@ -90,7 +88,9 @@ public class CompressionController {
             if (fileNameDotIndex > 0) {
                 originalFileName = compressedFileName.substring(0, fileNameDotIndex);
             }
+
             Resource resource = compressionService.decompressFile(compressedFile, null);
+
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + originalFileName + "\"");
             headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(resource.contentLength()));
