@@ -7,10 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -26,6 +23,7 @@ public class CompressionServiceImpl implements CompressionService {
 
     @Override
     public Resource compressFile(MultipartFile file, String strategyName) {
+        String originalFilename = file.getOriginalFilename();
         String strategyToUse = (strategyName != null && !strategyName.isEmpty()) ? strategyName : DEFAULT_COMPRESSION_STRATEGY;
         CompressionStrategy strategy = compressionStrategyFactory.getStrategy(strategyToUse);
         if (strategy == null) {
@@ -35,9 +33,31 @@ public class CompressionServiceImpl implements CompressionService {
         try {
             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
             InputStream inputStream = file.getInputStream();
-            ZipEntry zipEntry = new ZipEntry(file.getOriginalFilename() + '.' + strategyToUse);
+            // Extract filename without extension
+            String filenameWithoutExtension = originalFilename;
+            int lastDotIndex = 0;
+            if (originalFilename != null) {
+                lastDotIndex = originalFilename.lastIndexOf('.');
+            }
+            if (lastDotIndex > 0) {
+                filenameWithoutExtension = originalFilename.substring(0, lastDotIndex);
+            }
+
+            assert filenameWithoutExtension != null;
+            ZipEntry zipEntry = new ZipEntry(filenameWithoutExtension);
             zipOutputStream.putNextEntry(zipEntry);
-            strategy.compress(inputStream, zipOutputStream);
+
+            InputStream strategyInputStream = inputStream;
+            if (strategyToUse.equalsIgnoreCase("huffman")) {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] data = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(data)) != -1) {
+                    buffer.write(data, 0, bytesRead);
+                }
+                strategyInputStream = new ByteArrayInputStream(buffer.toByteArray());
+            }
+            strategy.compress(strategyInputStream, zipOutputStream);
             zipOutputStream.closeEntry();
         } catch (IOException e) {
             throw new RuntimeException(e);
