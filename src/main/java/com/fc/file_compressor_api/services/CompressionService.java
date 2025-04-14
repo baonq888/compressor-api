@@ -7,5 +7,5 @@ import java.nio.file.Path;
 
 public interface CompressionService {
     Resource compressFile(MultipartFile file, String strategyName);
-    void decompressFile(MultipartFile compressedFile, String strategyName, String outputFilePath);
+    Resource decompressFile(MultipartFile compressedFile, String strategyName);
 }

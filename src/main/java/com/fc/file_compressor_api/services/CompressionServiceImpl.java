@@ -10,12 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class CompressionServiceImpl implements CompressionService{
+public class CompressionServiceImpl implements CompressionService {
     private static final String DEFAULT_COMPRESSION_STRATEGY = "huffman";
     private final CompressionStrategyFactory compressionStrategyFactory;
 
@@ -46,7 +47,22 @@ public class CompressionServiceImpl implements CompressionService{
     }
 
     @Override
-    public void decompressFile(MultipartFile compressedFile, String strategyName, String outputFilePath) {
+    public Resource decompressFile(MultipartFile compressedFile, String strategyName) {
+        String strategyToUse = (strategyName != null && !strategyName.isEmpty()) ? strategyName : DEFAULT_COMPRESSION_STRATEGY;
+        CompressionStrategy strategy = compressionStrategyFactory.getStrategy(strategyToUse);
 
+        if (strategy == null) {
+            throw new IllegalArgumentException("Unsupported compression strategy: " + strategyToUse);
+        }
+
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        try {
+            InputStream inputStream = compressedFile.getInputStream();
+            strategy.decompress(inputStream, byteOut);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] decompressedBytes = byteOut.toByteArray();
+        return new ByteArrayResource(decompressedBytes);
     }
 }

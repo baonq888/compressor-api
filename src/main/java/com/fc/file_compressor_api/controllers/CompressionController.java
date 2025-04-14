@@ -31,7 +31,6 @@ public class CompressionController {
             Resource resource = compressionService.compressFile(file, null);
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriginalFilename() + ".zip\"");
-            headers.add(HttpHeaders.CONTENT_TYPE, "application/zip");
             headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(resource.contentLength()));
 
             return  ResponseEntity.ok().headers(headers).body(resource);
@@ -41,4 +40,35 @@ public class CompressionController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/decompress")
+    public ResponseEntity<Resource> decompressFile(@RequestParam("file") MultipartFile compressedFile) {
+        if (compressedFile.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            String compressedFileName = compressedFile.getOriginalFilename();
+            String originalFileName = compressedFileName;
+
+            int fileNameDotIndex = compressedFileName != null ? compressedFileName.lastIndexOf('.') : 0;
+            if (fileNameDotIndex > 0) {
+                originalFileName = compressedFileName.substring(0, fileNameDotIndex);
+            }
+            Resource resource = compressionService.decompressFile(compressedFile, null);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + originalFileName + "\"");
+            headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(resource.contentLength()));
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }
