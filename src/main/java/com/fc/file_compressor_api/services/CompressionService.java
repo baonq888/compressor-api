@@ -1,13 +1,11 @@
 package com.fc.file_compressor_api.services;
 
-import com.fc.file_compressor_api.services.factory.CompressionStrategyFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
-@Service
-public class CompressionService {
-    private final CompressionStrategyFactory compressionStrategyFactory;
+import java.nio.file.Path;
 
-    public CompressionService(CompressionStrategyFactory compressionStrategyFactory) {
-        this.compressionStrategyFactory = compressionStrategyFactory;
-    }
+public interface CompressionService {
+    Resource compressFile(MultipartFile file, String strategyName);
+    void decompressFile(MultipartFile compressedFile, String strategyName, String outputFilePath);
 }
